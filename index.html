@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Durga Pujo 2026 Countdown | Sharodotsav</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="A premium, aesthetic countdown timer for Durga Pujo 2026. Celebrate Mahalaya and Maha Shasthi with interactive Dhak sounds and falling Shiuli flowers.">
+    <meta name="keywords" content="Durga Puja 2026, Durga Pujo countdown, Mahalaya 2026, Maha Shasthi 2026, Dhak sounds, Sharodotsav">
+    <meta name="author" content="Sharodotsav">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Durga Pujo 2026 Countdown | Sharodotsav">
+    <meta property="og:description" content="Celebrate the count down to Durga Pujo 2026. Experience traditional Dhak drums and autumn Shiuli flowers on your mobile screen.">
+    <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/e/e9/Durga_Puja_Kolkata_2019.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Durga Pujo 2026 Countdown | Sharodotsav">
+    <meta property="twitter:description" content="A premium countdown to Durga Pujo 2026 featuring ambient Dhak audio and responsive layouts.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Ambient Glows -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-glow glow-3"></div>
+
+    <!-- Shiuli Flower Floating Canvas -->
+    <canvas id="shiuli-canvas"></canvas>
+
+    <!-- Main Container -->
+    <main class="container">
+        
+        <!-- Header -->
+        <header class="header">
+            <span class="subtitle">SHARODOTSAV 2026</span>
+            <h1 class="main-title">Maa Aschen</h1>
+            <p class="tagline">The countdown to Durga Pujo is on</p>
+        </header>
+
+        <!-- Segmented Target Toggle -->
+        <div class="toggle-container">
+            <div class="toggle-slider"></div>
+            <button class="toggle-btn active" id="btn-shasthi" data-target="shasthi">
+                <span class="btn-label">Maha Shasthi</span>
+                <span class="btn-sub">Oct 17, 2026</span>
+            </button>
+            <button class="toggle-btn" id="btn-mahalaya" data-target="mahalaya">
+                <span class="btn-label">Mahalaya</span>
+                <span class="btn-sub">Oct 10, 2026</span>
+            </button>
+        </div>
+
+        <!-- Countdown Display Grid -->
+        <section class="countdown-section" aria-live="polite">
+            <div class="countdown-grid">
+                <div class="glass-card countdown-card" id="card-days">
+                    <span class="number">000</span>
+                    <span class="label">DAYS</span>
+                </div>
+                <div class="glass-card countdown-card" id="card-hours">
+                    <span class="number">00</span>
+                    <span class="label">HOURS</span>
+                </div>
+                <div class="glass-card countdown-card" id="card-minutes">
+                    <span class="number">00</span>
+                    <span class="label">MINS</span>
+                </div>
+                <div class="glass-card countdown-card" id="card-seconds">
+                    <span class="number">00</span>
+                    <span class="label">SECS</span>
+                </div>
+            </div>
+            
+            <div class="target-indicator-text">
+                Counting down to <span id="current-target-name">Maha Shasthi</span>
+            </div>
+        </section>
+
+        <!-- Dynamic Content Section (Calendar & Sound Control) -->
+        <section class="details-section">
+            
+            <!-- Calendar Card -->
+            <div class="glass-card calendar-card">
+                <h2 class="section-title">
+                    <svg class="icon" viewBox="0 0 24 24" width="20" height="20">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" fill="currentColor"/>
+                    </svg>
+                    Pujo Nirghonto 2026
+                </h2>
+                <div class="calendar-list">
+                    <div class="calendar-item" id="cal-mahalaya" data-date="2026-10-10">
+                        <div class="cal-meta">
+                            <span class="cal-day">Mahalaya</span>
+                            <span class="cal-desc">Tarpan & Devine Invocation</span>
+                        </div>
+                        <span class="cal-date">Oct 10, Sat</span>
+                    </div>
+                    <div class="calendar-item" id="cal-panchami" data-date="2026-10-12">
+                        <div class="cal-meta">
+                            <span class="cal-day">Maha Panchami</span>
+                            <span class="cal-desc">Pandal Opening & Festivities Begin</span>
+                        </div>
+                        <span class="cal-date">Oct 12, Mon</span>
+                    </div>
+                    <div class="calendar-item" id="cal-shasthi" data-date="2026-10-17">
+                        <div class="cal-meta">
+                            <span class="cal-day">Maha Shasthi</span>
+                            <span class="cal-desc">Bodhon, Amantran & Adhibas</span>
+                        </div>
+                        <span class="cal-date">Oct 17, Sat</span>
+                    </div>
+                    <div class="calendar-item" id="cal-saptami" data-date="2026-10-18">
+                        <div class="cal-meta">
+                            <span class="cal-day">Maha Saptami</span>
+                            <span class="cal-desc">Navapatrika Pravesh</span>
+                        </div>
+                        <span class="cal-date">Oct 18, Sun</span>
+                    </div>
+                    <div class="calendar-item" id="cal-ashtami" data-date="2026-10-19">
+                        <div class="cal-meta">
+                            <span class="cal-day">Maha Ashtami</span>
+                            <span class="cal-desc">Anjali, Sandhi Puja & Dhunuchi Naach</span>
+                        </div>
+                        <span class="cal-date">Oct 19, Mon</span>
+                    </div>
+                    <div class="calendar-item" id="cal-navami" data-date="2026-10-20">
+                        <div class="cal-meta">
+                            <span class="cal-day">Maha Navami</span>
+                            <span class="cal-desc">Navami Homa & Maha Arati</span>
+                        </div>
+                        <span class="cal-date">Oct 20, Tue</span>
+                    </div>
+                    <div class="calendar-item" id="cal-dashami" data-date="2026-10-21">
+                        <div class="cal-meta">
+                            <span class="cal-day">Vijayadashami</span>
+                            <span class="cal-desc">Sindoor Khela, Visarjan & Subho Bijoya</span>
+                        </div>
+                        <span class="cal-date">Oct 21, Wed</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dhaki Drum Sound Card -->
+            <div class="glass-card sound-card">
+                <h2 class="section-title">
+                    <svg class="icon" viewBox="0 0 24 24" width="20" height="20">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" fill="currentColor"/>
+                    </svg>
+                    Ambient Dhaki Machine
+                </h2>
+                <p class="sound-desc">Synthesize traditional Dhak beats natively on your device. Turn it on to immerse yourself in the pandal vibe.</p>
+                
+                <div class="sound-controls">
+                    <!-- Play / Pause State -->
+                    <button class="sound-play-btn" id="sound-toggle-btn" aria-label="Play traditional drum sound">
+                        <span class="play-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                <path d="M8 5v14l11-7z" fill="currentColor"/>
+                            </svg>
+                        </span>
+                        <span class="pause-icon hidden">
+                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/>
+                            </svg>
+                        </span>
+                        <span id="sound-status-text">Enable Dhak Sound</span>
+                    </button>
+
+                    <!-- Speed Control -->
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-label">Dhaki Energy (Tempo)</span>
+                            <span class="slider-value" id="tempo-val">100 bpm</span>
+                        </div>
+                        <input type="range" id="tempo-slider" min="70" max="150" value="105" class="range-slider" disabled>
+                    </div>
+
+                    <!-- Volume Control -->
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-label">Volume</span>
+                            <span class="slider-value" id="volume-val">70%</span>
+                        </div>
+                        <input type="range" id="volume-slider" min="0" max="100" value="70" class="range-slider" disabled>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Floating Audio Status Visualizer (Mute/Play Trigger) -->
+    <div class="floating-visualizer" id="floating-audio-trigger" aria-label="Toggle sound visualizer" role="button" tabindex="0">
+        <div class="visualizer-bars">
+            <span class="bar bar-1"></span>
+            <span class="bar bar-2"></span>
+            <span class="bar bar-3"></span>
+            <span class="bar bar-4"></span>
+        </div>
+        <span class="mute-indicator">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+                <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM12 4L9.91 6.09 12 8.18V4zm-7.7 2.8L2.81 8.3 7.51 13H3v6h4l5 5v-9.19l4.98 4.98c-.74.57-1.57.97-2.48 1.18v2.02c1.44-.32 2.75-1.03 3.82-2.02l2.38 2.38 1.41-1.41L4.3 6.8z" fill="currentColor"/>
+            </svg>
+        </span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Subho Sharodotsav 2026. Made with ❤️ for pujo lovers.</p>
+        <button id="install-btn" class="install-btn hidden">Add to Home Screen</button>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
