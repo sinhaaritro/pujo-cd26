@@ -9,11 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const TARGETS = {
         shasthi: {
             name: "Maha Shasthi",
-            date: new Date("2026-10-17T00:00:00+05:30") // Oct 17, 2026
+            date: new Date(2026, 9, 17, 0, 0, 0) // Oct 17, 2026 local time
         },
         mahalaya: {
             name: "Mahalaya",
-            date: new Date("2026-10-10T00:00:00+05:30") // Oct 10, 2026
+            date: new Date(2026, 9, 10, 0, 0, 0) // Oct 10, 2026 local time
         }
     };
 
@@ -111,7 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         items.forEach(item => {
             const dateStr = item.getAttribute('data-date');
-            const targetDate = new Date(`${dateStr}T00:00:00+05:30`);
+            const dateParts = dateStr.split('-');
+            const targetDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]), 0, 0, 0);
             
             // Set end of day for comparison
             const endOfDay = new Date(targetDate);
@@ -293,16 +294,20 @@ document.addEventListener('DOMContentLoaded', () => {
         
         osc.type = 'sine';
         
+        // Ensure scheduling time is not in the past to avoid browser glitches
+        const playTime = Math.max(time, audioCtx.currentTime);
+        
         // Quick pitch drop representing the drum strike skin bounce
-        osc.frequency.setValueAtTime(140, time);
-        osc.frequency.exponentialRampToValueAtTime(45, time + 0.12);
+        osc.frequency.setValueAtTime(140, playTime);
+        osc.frequency.linearRampToValueAtTime(45, playTime + 0.12);
         
-        // Volume decay
-        gain.gain.setValueAtTime(1.0, time);
-        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.16);
+        // Volume decay (linear ramp avoids Safari exponential range errors)
+        gain.gain.setValueAtTime(1.0, playTime);
+        gain.gain.linearRampToValueAtTime(0.01, playTime + 0.15);
+        gain.gain.setValueAtTime(0.0, playTime + 0.16);
         
-        osc.start(time);
-        osc.stop(time + 0.18);
+        osc.start(playTime);
+        osc.stop(playTime + 0.18);
     }
 
     // 2. High Stick Rimshot (Stick)
@@ -315,21 +320,25 @@ document.addEventListener('DOMContentLoaded', () => {
         
         osc.type = 'triangle';
         
+        const playTime = Math.max(time, audioCtx.currentTime);
+        
         // Very fast high frequency decay representing wood strike
-        osc.frequency.setValueAtTime(1200, time);
-        osc.frequency.exponentialRampToValueAtTime(700, time + 0.03);
+        osc.frequency.setValueAtTime(1200, playTime);
+        osc.frequency.linearRampToValueAtTime(700, playTime + 0.03);
         
-        gain.gain.setValueAtTime(strength, time);
-        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+        gain.gain.setValueAtTime(strength, playTime);
+        gain.gain.linearRampToValueAtTime(0.01, playTime + 0.04);
+        gain.gain.setValueAtTime(0.0, playTime + 0.05);
         
-        osc.start(time);
-        osc.stop(time + 0.05);
+        osc.start(playTime);
+        osc.stop(playTime + 0.06);
     }
 
     // 3. Kansar (Metallic Bell Chime)
     function playKansar(time) {
         // Combine 3 clean high frequencies to form a resonant bronze dish strike sound
         const frequencies = [1180, 1540, 2150];
+        const playTime = Math.max(time, audioCtx.currentTime);
         
         frequencies.forEach((freq, idx) => {
             const osc = audioCtx.createOscillator();
@@ -339,15 +348,15 @@ document.addEventListener('DOMContentLoaded', () => {
             gain.connect(masterGainNode);
             
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, time);
+            osc.frequency.setValueAtTime(freq, playTime);
             
             // Subtly different decay to sound organic
             const volumeCoeff = idx === 0 ? 0.09 : (idx === 1 ? 0.06 : 0.04);
-            gain.gain.setValueAtTime(volumeCoeff, time);
-            gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.38);
+            gain.gain.setValueAtTime(volumeCoeff, playTime);
+            gain.gain.linearRampToValueAtTime(0.0, playTime + 0.38);
             
-            osc.start(time);
-            osc.stop(time + 0.4);
+            osc.start(playTime);
+            osc.stop(playTime + 0.4);
         });
     }
 
@@ -356,15 +365,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Simple 8-step looping traditional rhythm
     function scheduleNote(noteNumber, time) {
         // Dhak pattern loop (8 steps)
-        // Step 0: Bass + Kansar
-        // Step 1: Stick (weak)
-        // Step 2: Bass + Kansar
-        // Step 3: Stick (rapid double)
-        // Step 4: Bass + Kansar
-        // Step 5: Stick (weak)
-        // Step 6: Bass + Kansar + Stick
-        // Step 7: Stick (accented)
-        
         switch (noteNumber) {
             case 0:
                 playBassDrum(time);
@@ -402,7 +402,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Scheduler ticking loop
     function scheduler() {
+        // Reset nextNoteTime if it falls behind due to tab suspend / backgrounding
+        if (nextNoteTime < audioCtx.currentTime) {
+            nextNoteTime = audioCtx.currentTime + 0.02;
+        }
+
         // While there are notes to play before next interval, schedule them
         while (nextNoteTime < audioCtx.currentTime + 0.1) {
             scheduleNote(currentNote, nextNoteTime);

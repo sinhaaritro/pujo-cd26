@@ -12,7 +12,7 @@
     --color-white: #fcfaf7;
     --color-gray-light: #b3a7a9;
     --color-gray-dark: #241d1e;
-    
+
     /* Alpha variants for transparency and glassmorphism */
     --bg-glass: rgba(18, 12, 13, 0.55);
     --border-glass: rgba(255, 255, 255, 0.08);
@@ -20,12 +20,12 @@
     --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
     --glow-crimson: 0 0 20px rgba(211, 47, 47, 0.3);
     --glow-gold: 0 0 25px rgba(229, 176, 43, 0.4);
-    
+
     /* Typography Stacks */
     --font-header: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --font-accent: 'Playfair Display', Georgia, serif;
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    
+
     /* Layout Constants */
     --radius-sm: 8px;
     --radius-md: 16px;
@@ -37,11 +37,14 @@
 /* ==========================================================================
    Reset & Mobile Optimizations
    ========================================================================== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    -webkit-tap-highlight-color: transparent; /* Disable default tap highlight on iOS */
+    -webkit-tap-highlight-color: transparent;
+    /* Disable default tap highlight on iOS */
 }
 
 html {
@@ -55,7 +58,8 @@ html {
 
 body {
     min-height: 100vh;
-    min-height: -webkit-fill-available; /* Fill viewport height on Safari mobile */
+    min-height: -webkit-fill-available;
+    /* Fill viewport height on Safari mobile */
     overflow-x: hidden;
     position: relative;
     display: flex;
@@ -71,7 +75,8 @@ canvas#shiuli-canvas {
     width: 100vw;
     height: 100vh;
     z-index: 1;
-    pointer-events: none; /* Interactable details beneath canvas */
+    pointer-events: none;
+    /* Interactable details beneath canvas */
 }
 
 /* ==========================================================================
@@ -115,13 +120,25 @@ canvas#shiuli-canvas {
 }
 
 @keyframes floatGlow {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(30px, 40px) scale(1.15); }
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(30px, 40px) scale(1.15);
+    }
 }
 
 @keyframes heartbeat {
-    0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.2; }
-    100% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.45; }
+    0% {
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0.2;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.45;
+    }
 }
 
 /* ==========================================================================
@@ -129,7 +146,8 @@ canvas#shiuli-canvas {
    ========================================================================== */
 .container {
     width: 100%;
-    max-width: 480px; /* Centered layout for mobile-first experience */
+    max-width: 480px;
+    /* Centered layout for mobile-first experience */
     padding: 24px 16px;
     z-index: 2;
     display: flex;
@@ -184,6 +202,7 @@ canvas#shiuli-canvas {
     margin: 8px 0;
     text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     background: linear-gradient(135deg, var(--color-white) 30%, #fcdab0 100%);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -297,7 +316,7 @@ canvas#shiuli-canvas {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
     pointer-events: none;
 }
 
@@ -517,6 +536,7 @@ canvas#shiuli-canvas {
 }
 
 .range-slider {
+    appearance: none;
     -webkit-appearance: none;
     width: 100%;
     height: 6px;
@@ -547,7 +567,7 @@ canvas#shiuli-canvas {
     transform: scale(1.2);
 }
 
-.sound-play-btn.playing ~ .slider-group .range-slider::-webkit-slider-thumb {
+.sound-play-btn.playing~.slider-group .range-slider::-webkit-slider-thumb {
     background: var(--color-crimson-light);
     box-shadow: 0 0 8px rgba(255, 102, 89, 0.5);
 }
@@ -566,7 +586,7 @@ canvas#shiuli-canvas {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--border-glass);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -600,24 +620,44 @@ canvas#shiuli-canvas {
     animation: bounceBar 1.2s infinite ease-in-out;
 }
 
-.floating-visualizer.playing .visualizer-bars .bar-1 { animation-delay: 0.1s; }
-.floating-visualizer.playing .visualizer-bars .bar-2 { animation-delay: 0.4s; }
-.floating-visualizer.playing .visualizer-bars .bar-3 { animation-delay: 0.2s; }
-.floating-visualizer.playing .visualizer-bars .bar-4 { animation-delay: 0.5s; }
+.floating-visualizer.playing .visualizer-bars .bar-1 {
+    animation-delay: 0.1s;
+}
+
+.floating-visualizer.playing .visualizer-bars .bar-2 {
+    animation-delay: 0.4s;
+}
+
+.floating-visualizer.playing .visualizer-bars .bar-3 {
+    animation-delay: 0.2s;
+}
+
+.floating-visualizer.playing .visualizer-bars .bar-4 {
+    animation-delay: 0.5s;
+}
 
 @keyframes bounceBar {
-    0%, 100% { height: 4px; }
-    50% { height: 16px; }
+
+    0%,
+    100% {
+        height: 4px;
+    }
+
+    50% {
+        height: 16px;
+    }
 }
 
 /* Hide bars, show mute icon when off */
 .floating-visualizer.muted .visualizer-bars {
     display: none;
 }
+
 .floating-visualizer.muted .mute-indicator {
     display: block;
     color: var(--color-gray-light);
 }
+
 .floating-visualizer:not(.muted) .mute-indicator {
     display: none;
 }
@@ -669,7 +709,7 @@ canvas#shiuli-canvas {
         padding-top: max(16px, env(safe-area-inset-top));
         padding-bottom: max(16px, env(safe-area-inset-bottom));
     }
-    
+
     .floating-visualizer {
         bottom: calc(24px + env(safe-area-inset-bottom));
     }
@@ -680,12 +720,15 @@ canvas#shiuli-canvas {
     .main-title {
         font-size: 2.2rem;
     }
+
     .countdown-card .number {
         font-size: 1.7rem;
     }
+
     .countdown-card {
         padding: 12px 2px;
     }
+
     .calendar-item {
         padding: 8px 10px;
     }
@@ -696,23 +739,29 @@ canvas#shiuli-canvas {
     body {
         background: radial-gradient(circle at center, #1b0e11 0%, var(--color-bg-base) 100%);
     }
+
     .container {
         max-width: 720px;
         padding: 40px 24px;
         gap: 32px;
     }
+
     .main-title {
         font-size: 3.4rem;
     }
+
     .countdown-grid {
         gap: 16px;
     }
+
     .countdown-card {
         padding: 24px 8px;
     }
+
     .countdown-card .number {
         font-size: 2.6rem;
     }
+
     .details-section {
         display: grid;
         grid-template-columns: 1.2fr 0.8fr;
