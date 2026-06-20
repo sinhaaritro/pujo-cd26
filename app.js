@@ -271,35 +271,66 @@ document.addEventListener('DOMContentLoaded', () => {
     function initAudio() {
         if (audioCtx) return;
         
-        // Create context
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContextClass();
-        
-        // Create HTML5 audio element playing the downloaded recording
-        audioHTMLElement = new Audio('dhak.mp3');
-        audioHTMLElement.loop = true;
-        audioHTMLElement.preload = 'auto';
-        
-        // CRITICAL: Prevent the pitch from changing when playback rate changes
-        audioHTMLElement.preservesPitch = true;
-        audioHTMLElement.webkitPreservesPitch = true;
-        audioHTMLElement.mozPreservesPitch = true;
-        
-        // Set master gain for volume control
-        masterGainNode = audioCtx.createGain();
-        masterGainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
-        
-        // Connect HTML audio element to Web Audio graph
-        trackSource = audioCtx.createMediaElementSource(audioHTMLElement);
-        trackSource.connect(masterGainNode);
-        masterGainNode.connect(audioCtx.destination);
+        try {
+            // Create context
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContextClass();
+            
+            // Create HTML5 audio element playing the downloaded recording
+            audioHTMLElement = new Audio('dhak.mp3');
+            audioHTMLElement.loop = true;
+            audioHTMLElement.preload = 'auto';
+            
+            // iOS Safari workaround: Element must be in the DOM to play through Web Audio
+            audioHTMLElement.style.display = 'none';
+            document.body.appendChild(audioHTMLElement);
+            
+            // CRITICAL: Prevent the pitch from changing when playback rate changes
+            audioHTMLElement.preservesPitch = true;
+            audioHTMLElement.webkitPreservesPitch = true;
+            audioHTMLElement.mozPreservesPitch = true;
+            
+            // Set master gain for volume control
+            masterGainNode = audioCtx.createGain();
+            masterGainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+            
+            // Connect HTML audio element to Web Audio graph
+            trackSource = audioCtx.createMediaElementSource(audioHTMLElement);
+            trackSource.connect(masterGainNode);
+            masterGainNode.connect(audioCtx.destination);
+            
+            console.log("Audio initialized successfully with Web Audio API.");
+        } catch (e) {
+            console.warn("Web Audio API blocked or failed (likely running on file:// protocol). Falling back to direct HTML5 Audio playback.", e);
+            
+            // Fallback: Create and play audio directly without routing through context
+            if (!audioHTMLElement) {
+                audioHTMLElement = new Audio('dhak.mp3');
+                audioHTMLElement.loop = true;
+                audioHTMLElement.preload = 'auto';
+                audioHTMLElement.style.display = 'none';
+                document.body.appendChild(audioHTMLElement);
+            }
+            
+            audioHTMLElement.volume = volume;
+            audioHTMLElement.preservesPitch = true;
+            audioHTMLElement.webkitPreservesPitch = true;
+            audioHTMLElement.mozPreservesPitch = true;
+            
+            // Mock AudioContext properties to prevent console errors
+            audioCtx = {
+                state: 'running',
+                resume: () => Promise.resolve(),
+                currentTime: 0
+            };
+        }
     }
 
     function startAudioEngine() {
         initAudio();
         
         // Resume context if suspended (browser security autoplay policy)
-        if (audioCtx.state === 'suspended') {
+        if (audioCtx && audioCtx.state === 'suspended') {
             audioCtx.resume();
         }
 
@@ -371,8 +402,10 @@ document.addEventListener('DOMContentLoaded', () => {
     volumeSlider.addEventListener('input', (e) => {
         volume = parseInt(e.target.value) / 100;
         volumeValText.textContent = `${Math.round(volume * 100)}%`;
-        if (masterGainNode) {
+        if (masterGainNode && audioCtx) {
             masterGainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+        } else if (audioHTMLElement) {
+            audioHTMLElement.volume = volume;
         }
     });
 
