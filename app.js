@@ -252,16 +252,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlaying = false;
     
     // Configurable state via sliders
-    let tempo = 105.0; // BPM (105 is default speed)
+    let speed = 1.0;   // Playback rate speed factor (0.5 to 1.5)
     let volume = 0.7;  // 0.0 to 1.0
 
     // DOM Audio Controls
     const soundToggleBtn = document.getElementById('sound-toggle-btn');
     const floatingAudioBtn = document.getElementById('floating-audio-trigger');
-    const tempoSlider = document.getElementById('tempo-slider');
+    const speedSlider = document.getElementById('speed-slider');
     const volumeSlider = document.getElementById('volume-slider');
     
-    const tempoValText = document.getElementById('tempo-val');
+    const speedValText = document.getElementById('speed-val');
     const volumeValText = document.getElementById('volume-val');
     const soundStatusText = document.getElementById('sound-status-text');
 
@@ -279,6 +279,11 @@ document.addEventListener('DOMContentLoaded', () => {
         audioHTMLElement = new Audio('dhak.mp3');
         audioHTMLElement.loop = true;
         audioHTMLElement.preload = 'auto';
+        
+        // CRITICAL: Prevent the pitch from changing when playback rate changes
+        audioHTMLElement.preservesPitch = true;
+        audioHTMLElement.webkitPreservesPitch = true;
+        audioHTMLElement.mozPreservesPitch = true;
         
         // Set master gain for volume control
         masterGainNode = audioCtx.createGain();
@@ -298,9 +303,9 @@ document.addEventListener('DOMContentLoaded', () => {
             audioCtx.resume();
         }
 
-        // Apply active tempo speed
+        // Apply active speed
         if (audioHTMLElement) {
-            audioHTMLElement.playbackRate = tempo / 105.0;
+            audioHTMLElement.playbackRate = speed;
             audioHTMLElement.play().catch(err => {
                 console.error("Playback failed: ", err);
             });
@@ -309,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isPlaying = true;
 
         // Enable sliders UI
-        tempoSlider.removeAttribute('disabled');
+        speedSlider.removeAttribute('disabled');
         volumeSlider.removeAttribute('disabled');
 
         // Update UI States
@@ -329,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isPlaying = false;
 
         // Disable sliders UI
-        tempoSlider.setAttribute('disabled', 'true');
+        speedSlider.setAttribute('disabled', 'true');
         volumeSlider.setAttribute('disabled', 'true');
 
         // Update UI States
@@ -355,11 +360,11 @@ document.addEventListener('DOMContentLoaded', () => {
     floatingAudioBtn.addEventListener('click', toggleAudio);
 
     // Dynamic Controls
-    tempoSlider.addEventListener('input', (e) => {
-        tempo = parseInt(e.target.value);
-        tempoValText.textContent = `${tempo} bpm`;
+    speedSlider.addEventListener('input', (e) => {
+        speed = parseFloat(e.target.value);
+        speedValText.textContent = `${speed.toFixed(2)}x`;
         if (audioHTMLElement) {
-            audioHTMLElement.playbackRate = tempo / 105.0;
+            audioHTMLElement.playbackRate = speed;
         }
     });
 
