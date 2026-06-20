@@ -243,18 +243,17 @@ document.addEventListener('DOMContentLoaded', () => {
     animate();
 
     // ----------------------------------------------------------------------
-    // 5. AMBIENT DHAK AUDIO SYNTHESIZER (WEB AUDIO API)
+    // 5. AMBIENT DHAK AUDIO ENGINE (REAL RECORDING + EFFECTS)
     // ----------------------------------------------------------------------
     let audioCtx = null;
-    let schedulerTimer = null;
-    let nextNoteTime = 0.0;
-    let currentNote = 0; // 0 to 7 (8-step loop)
+    let audioHTMLElement = null;
+    let trackSource = null;
+    let masterGainNode = null;
     let isPlaying = false;
     
     // Configurable state via sliders
-    let tempo = 105.0; // BPM
+    let tempo = 105.0; // BPM (105 is default speed)
     let volume = 0.7;  // 0.0 to 1.0
-    let masterGainNode = null;
 
     // DOM Audio Controls
     const soundToggleBtn = document.getElementById('sound-toggle-btn');
@@ -276,155 +275,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContextClass();
         
+        // Create HTML5 audio element playing the downloaded recording
+        audioHTMLElement = new Audio('dhak.mp3');
+        audioHTMLElement.loop = true;
+        audioHTMLElement.preload = 'auto';
+        
         // Set master gain for volume control
         masterGainNode = audioCtx.createGain();
         masterGainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+        
+        // Connect HTML audio element to Web Audio graph
+        trackSource = audioCtx.createMediaElementSource(audioHTMLElement);
+        trackSource.connect(masterGainNode);
         masterGainNode.connect(audioCtx.destination);
     }
-
-    // --- Web Audio Drum Synthesis Helpers ---
-    
-    // 1. Deep Bass Drum (Dhak)
-    function playBassDrum(time) {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.connect(gain);
-        gain.connect(masterGainNode);
-        
-        osc.type = 'sine';
-        
-        // Ensure scheduling time is not in the past to avoid browser glitches
-        const playTime = Math.max(time, audioCtx.currentTime);
-        
-        // Quick pitch drop representing the drum strike skin bounce
-        osc.frequency.setValueAtTime(140, playTime);
-        osc.frequency.linearRampToValueAtTime(45, playTime + 0.12);
-        
-        // Volume decay (linear ramp avoids Safari exponential range errors)
-        gain.gain.setValueAtTime(1.0, playTime);
-        gain.gain.linearRampToValueAtTime(0.01, playTime + 0.15);
-        gain.gain.setValueAtTime(0.0, playTime + 0.16);
-        
-        osc.start(playTime);
-        osc.stop(playTime + 0.18);
-    }
-
-    // 2. High Stick Rimshot (Stick)
-    function playStickHit(time, strength = 0.3) {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.connect(gain);
-        gain.connect(masterGainNode);
-        
-        osc.type = 'triangle';
-        
-        const playTime = Math.max(time, audioCtx.currentTime);
-        
-        // Very fast high frequency decay representing wood strike
-        osc.frequency.setValueAtTime(1200, playTime);
-        osc.frequency.linearRampToValueAtTime(700, playTime + 0.03);
-        
-        gain.gain.setValueAtTime(strength, playTime);
-        gain.gain.linearRampToValueAtTime(0.01, playTime + 0.04);
-        gain.gain.setValueAtTime(0.0, playTime + 0.05);
-        
-        osc.start(playTime);
-        osc.stop(playTime + 0.06);
-    }
-
-    // 3. Kansar (Metallic Bell Chime)
-    function playKansar(time) {
-        // Combine 3 clean high frequencies to form a resonant bronze dish strike sound
-        const frequencies = [1180, 1540, 2150];
-        const playTime = Math.max(time, audioCtx.currentTime);
-        
-        frequencies.forEach((freq, idx) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            osc.connect(gain);
-            gain.connect(masterGainNode);
-            
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, playTime);
-            
-            // Subtly different decay to sound organic
-            const volumeCoeff = idx === 0 ? 0.09 : (idx === 1 ? 0.06 : 0.04);
-            gain.gain.setValueAtTime(volumeCoeff, playTime);
-            gain.gain.linearRampToValueAtTime(0.0, playTime + 0.38);
-            
-            osc.start(playTime);
-            osc.stop(playTime + 0.4);
-        });
-    }
-
-    // --- Rhythm Scheduler ---
-    
-    // Simple 8-step looping traditional rhythm
-    function scheduleNote(noteNumber, time) {
-        // Dhak pattern loop (8 steps)
-        switch (noteNumber) {
-            case 0:
-                playBassDrum(time);
-                playKansar(time);
-                break;
-            case 1:
-                playStickHit(time, 0.15);
-                break;
-            case 2:
-                playBassDrum(time);
-                playKansar(time);
-                break;
-            case 3:
-                // Double hit scheduler (Kiririri)
-                playStickHit(time, 0.15);
-                playStickHit(time + 0.08, 0.25);
-                break;
-            case 4:
-                playBassDrum(time);
-                playKansar(time);
-                break;
-            case 5:
-                playStickHit(time, 0.15);
-                break;
-            case 6:
-                playBassDrum(time);
-                playStickHit(time, 0.2);
-                playKansar(time);
-                break;
-            case 7:
-                playStickHit(time, 0.35);
-                // Extra bounce
-                playStickHit(time + 0.06, 0.15);
-                break;
-        }
-    }
-
-    // Scheduler ticking loop
-    function scheduler() {
-        // Reset nextNoteTime if it falls behind due to tab suspend / backgrounding
-        if (nextNoteTime < audioCtx.currentTime) {
-            nextNoteTime = audioCtx.currentTime + 0.02;
-        }
-
-        // While there are notes to play before next interval, schedule them
-        while (nextNoteTime < audioCtx.currentTime + 0.1) {
-            scheduleNote(currentNote, nextNoteTime);
-            
-            // Advance time based on step (tempo)
-            const secondsPerBeat = 60.0 / tempo;
-            // 8-step cycle, each step is an eighth note (half beat)
-            nextNoteTime += 0.25 * secondsPerBeat;
-            
-            currentNote = (currentNote + 1) % 8;
-        }
-        
-        schedulerTimer = setTimeout(scheduler, 25);
-    }
-
-    // --- Controls and Interaction ---
 
     function startAudioEngine() {
         initAudio();
@@ -434,12 +298,15 @@ document.addEventListener('DOMContentLoaded', () => {
             audioCtx.resume();
         }
 
+        // Apply active tempo speed
+        if (audioHTMLElement) {
+            audioHTMLElement.playbackRate = tempo / 105.0;
+            audioHTMLElement.play().catch(err => {
+                console.error("Playback failed: ", err);
+            });
+        }
+
         isPlaying = true;
-        currentNote = 0;
-        nextNoteTime = audioCtx.currentTime + 0.05;
-        
-        // Start scheduler
-        scheduler();
 
         // Enable sliders UI
         tempoSlider.removeAttribute('disabled');
@@ -456,8 +323,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function stopAudioEngine() {
+        if (audioHTMLElement) {
+            audioHTMLElement.pause();
+        }
         isPlaying = false;
-        clearTimeout(schedulerTimer);
 
         // Disable sliders UI
         tempoSlider.setAttribute('disabled', 'true');
@@ -489,6 +358,9 @@ document.addEventListener('DOMContentLoaded', () => {
     tempoSlider.addEventListener('input', (e) => {
         tempo = parseInt(e.target.value);
         tempoValText.textContent = `${tempo} bpm`;
+        if (audioHTMLElement) {
+            audioHTMLElement.playbackRate = tempo / 105.0;
+        }
     });
 
     volumeSlider.addEventListener('input', (e) => {
